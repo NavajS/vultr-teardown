@@ -1,0 +1,27 @@
+name: Vultr teardown
+
+on:
+  schedule:
+    - cron: "0 0,6,12,18 19-31 10 *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only list what would be destroyed"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  teardown:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Destroy instances labeled iris-server
+        run: bash deploy/teardown.sh
+        env:
+          VULTR_API_KEY: ${{ secrets.VULTR_API_KEY }}
+          LABEL: iris-server
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
